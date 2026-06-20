@@ -1,0 +1,1368 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ระบบข้อมูลสหกรณ์รายแห่ง</title>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&family=Kanit:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root{
+  --bg:#f0f4f8;--bg2:#fff;--bg3:#f8fafc;
+  --card:#fff;--border:rgba(0,0,0,0.08);
+  --text:#1a2332;--text2:#5a6a7e;--text3:#8a9ab0;
+  --primary:#1e40af;--primary-l:#dbeafe;
+  --green:#059669;--green-l:#d1fae5;
+  --red:#dc2626;--red-l:#fee2e2;
+  --amber:#d97706;--amber-l:#fef3c7;
+  --shadow:0 1px 3px rgba(0,0,0,0.08),0 1px 2px rgba(0,0,0,0.04);
+  --shadow-md:0 4px 12px rgba(0,0,0,0.1);
+  --r:12px;--r-sm:8px;
+  font-family:'Sarabun',sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-size:14px;line-height:1.6}
+
+/* TOPBAR */
+.topbar{background:var(--primary);color:#fff;padding:0 20px;display:flex;align-items:stretch;gap:0;position:sticky;top:0;z-index:200;box-shadow:0 2px 8px rgba(30,64,175,.3)}
+.topbar-brand{display:flex;align-items:center;gap:12px;padding:10px 0;flex:1}
+.brand-icon{width:44px;height:44px;border-radius:11px;display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0}
+.brand-title{font-family:'Kanit',sans-serif;font-size:14px;font-weight:500;line-height:1.3}
+.brand-sub{font-size:11px;opacity:.7}
+.topbar-right{display:flex;align-items:center;gap:8px}
+.clock-box{text-align:right;padding:6px 12px;font-size:11px;opacity:.8;border-right:1px solid rgba(255,255,255,.15)}
+.clock-time{font-family:'Kanit',sans-serif;font-size:17px;font-weight:500;opacity:1}
+.btn-admin{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);color:#fff;border-radius:var(--r-sm);padding:6px 13px;font-size:12px;font-family:'Sarabun',sans-serif;cursor:pointer;display:flex;align-items:center;gap:5px;transition:background .15s;margin-left:8px}
+.btn-admin:hover{background:rgba(255,255,255,.25)}
+
+/* OFFICE BAR */
+.office-bar{background:#1e3a8a;padding:7px 20px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.office-bar label{color:rgba(255,255,255,.7);font-size:11px;white-space:nowrap}
+.office-bar select{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);color:#fff;border-radius:6px;padding:4px 9px;font-size:12px;font-family:'Sarabun',sans-serif;cursor:pointer;min-width:200px;max-width:340px}
+.office-bar select option{background:#1e3a8a}
+.realtime-pill{margin-left:auto;display:flex;align-items:center;gap:6px;font-size:11px;color:rgba(255,255,255,.7)}
+.dot{width:7px;height:7px;border-radius:50%;background:#34d399;animation:blink 2s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+.btn-refresh{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.8);border-radius:6px;padding:4px 9px;font-size:11px;cursor:pointer;font-family:'Sarabun',sans-serif;display:flex;align-items:center;gap:4px}
+
+/* DEMO BANNER */
+.demo-banner{background:#fef3c7;color:#92400e;padding:8px 20px;font-size:12px;display:flex;align-items:center;gap:8px;border-bottom:1px solid #fcd34d}
+.demo-banner code{background:rgba(146,64,14,.1);padding:1px 5px;border-radius:4px;font-family:monospace}
+
+/* MAIN */
+.main{padding:16px 20px;max-width:1600px;margin:0 auto}
+
+/* FILTERS */
+.filters{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:12px 16px;display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end;margin-bottom:14px;box-shadow:var(--shadow)}
+.f-group{display:flex;flex-direction:column;gap:3px;min-width:140px;flex:1}
+.f-label{font-size:10px;color:var(--text2);font-weight:600;text-transform:uppercase;letter-spacing:.5px}
+.f-group select,.f-group input{padding:7px 9px;border:1px solid var(--border);border-radius:var(--r-sm);font-family:'Sarabun',sans-serif;font-size:12px;background:var(--bg3);color:var(--text);cursor:pointer}
+.search-box{position:relative;flex:2;min-width:200px}
+.search-box input{width:100%;padding:7px 9px 7px 32px}
+.search-icon{position:absolute;left:9px;top:50%;transform:translateY(-50%);color:var(--text3);font-size:15px}
+.btn-search{background:var(--primary);color:#fff;border:none;border-radius:var(--r-sm);padding:7px 16px;font-size:12px;font-family:'Sarabun',sans-serif;cursor:pointer;white-space:nowrap;display:flex;align-items:center;gap:5px}
+.btn-export{background:var(--green);color:#fff;border:none;border-radius:var(--r-sm);padding:7px 13px;font-size:12px;font-family:'Sarabun',sans-serif;cursor:pointer;display:flex;align-items:center;gap:5px}
+
+/* KPI */
+.kpi-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:14px}
+.kpi{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:12px 14px;box-shadow:var(--shadow);position:relative;overflow:hidden}
+.kpi-accent{position:absolute;top:0;left:0;width:3px;height:100%;border-radius:var(--r) 0 0 var(--r)}
+.kpi-label{font-size:10px;color:var(--text2);margin-bottom:4px;font-weight:600}
+.kpi-val{font-family:'Kanit',sans-serif;font-size:22px;font-weight:600;color:var(--text);line-height:1;margin-left:7px}
+.kpi-unit{font-size:11px;color:var(--text3);margin-top:2px;margin-left:7px}
+.kpi-badge{display:inline-flex;align-items:center;gap:3px;font-size:10px;padding:2px 7px;border-radius:20px;margin-top:5px;margin-left:7px;font-weight:500}
+.badge-up{background:var(--green-l);color:var(--green)}
+.badge-dn{background:var(--red-l);color:var(--red)}
+
+/* LAYOUT GRID */
+.layout{display:grid;grid-template-columns:1fr 340px;gap:14px;margin-bottom:14px}
+@media(max-width:900px){.layout{grid-template-columns:1fr}}
+
+/* COOP TABLE CARD */
+.table-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);box-shadow:var(--shadow);overflow:hidden}
+.table-header{padding:12px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px}
+.table-header-title{font-family:'Kanit',sans-serif;font-size:13px;font-weight:500;display:flex;align-items:center;gap:7px}
+.count-badge{background:var(--primary-l);color:var(--primary);border-radius:10px;padding:1px 8px;font-size:11px;font-weight:600}
+.overflow-x{overflow-x:auto}
+.tbl{width:100%;border-collapse:collapse;font-size:12px}
+.tbl th{padding:9px 12px;background:var(--bg3);font-size:10px;font-weight:600;color:var(--text2);text-align:left;text-transform:uppercase;letter-spacing:.4px;border-bottom:1px solid var(--border);white-space:nowrap;cursor:pointer;user-select:none}
+.tbl th:hover{background:#e8edf5}
+.tbl th .sort-icon{margin-left:4px;opacity:.4;font-size:11px}
+.tbl th.sort-asc .sort-icon::before,.tbl th.sort-desc .sort-icon::before{opacity:1}
+.tbl td{padding:9px 12px;border-bottom:1px solid rgba(0,0,0,0.04);vertical-align:middle}
+.tbl tr:hover td{background:var(--bg3);cursor:pointer}
+.tbl tr.selected td{background:var(--primary-l)}
+.type-pill{display:inline-block;padding:2px 7px;border-radius:8px;font-size:10px;font-weight:600;white-space:nowrap}
+.status-dot{display:inline-flex;align-items:center;gap:5px;font-size:11px}
+.status-dot::before{content:'';display:block;width:7px;height:7px;border-radius:50%}
+.status-active::before{background:#059669}
+.status-inactive::before{background:#9ca3af}
+.status-probation::before{background:#d97706}
+.trend-up{color:var(--green);font-size:11px}
+.trend-dn{color:var(--red);font-size:11px}
+.trend-flat{color:var(--text3);font-size:11px}
+.pagination{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-top:1px solid var(--border);font-size:11px;color:var(--text2);flex-wrap:wrap;gap:8px}
+.pg-btns{display:flex;gap:4px}
+.pg-btn{padding:4px 9px;border:1px solid var(--border);border-radius:5px;background:none;cursor:pointer;font-size:11px;font-family:'Sarabun',sans-serif;color:var(--text2)}
+.pg-btn:hover{background:var(--bg3)}
+.pg-btn.on{background:var(--primary);color:#fff;border-color:var(--primary)}
+
+/* DETAIL PANEL */
+.detail-panel{background:var(--card);border:1px solid var(--border);border-radius:var(--r);box-shadow:var(--shadow);overflow:hidden;position:sticky;top:76px}
+.detail-header{padding:14px 16px;border-bottom:1px solid var(--border);background:linear-gradient(135deg,#1e40af,#3b82f6);color:#fff}
+.detail-header-name{font-family:'Kanit',sans-serif;font-size:14px;font-weight:500;margin-bottom:4px}
+.detail-header-sub{font-size:11px;opacity:.8}
+.detail-body{padding:14px}
+.detail-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 16px;color:var(--text3);text-align:center}
+.detail-empty i{font-size:36px;margin-bottom:10px;opacity:.4}
+.detail-section{margin-bottom:14px}
+.detail-section-title{font-size:10px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;padding-bottom:5px;border-bottom:1px solid var(--border)}
+.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.info-item{background:var(--bg3);border-radius:7px;padding:8px 10px}
+.info-item-label{font-size:10px;color:var(--text3);margin-bottom:2px}
+.info-item-val{font-size:13px;font-weight:500;color:var(--text)}
+.mini-chart-wrap{position:relative;height:120px;margin-bottom:8px}
+.history-row{display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid rgba(0,0,0,.04);font-size:11px}
+.history-row:last-child{border-bottom:none}
+.history-year{font-weight:600;color:var(--text2)}
+
+/* CHARTS ROW */
+.charts-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px;margin-bottom:14px}
+.chart-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:16px;box-shadow:var(--shadow)}
+.chart-head{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px;gap:8px;flex-wrap:wrap}
+.chart-title{font-family:'Kanit',sans-serif;font-size:13px;font-weight:500}
+.chart-sub{font-size:10px;color:var(--text3);margin-top:1px}
+.chart-tabs{display:flex;gap:3px;background:var(--bg3);border-radius:5px;padding:2px;border:1px solid var(--border)}
+.ctab{padding:3px 9px;border-radius:4px;border:none;font-size:10px;cursor:pointer;background:transparent;color:var(--text2);font-family:'Sarabun',sans-serif;transition:all .15s}
+.ctab.on{background:var(--card);color:var(--text);font-weight:500;box-shadow:var(--shadow)}
+.legend{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.leg{display:flex;align-items:center;gap:4px;font-size:10px;color:var(--text2)}
+.leg-sq{width:9px;height:9px;border-radius:2px;flex-shrink:0}
+
+/* ADMIN PANEL */
+.admin-panel{background:var(--card);border:1px solid #93c5fd;border-radius:var(--r);box-shadow:var(--shadow-md);margin-bottom:14px;overflow:hidden}
+.admin-header{background:linear-gradient(135deg,#1e40af,#3b82f6);color:#fff;padding:11px 16px;display:flex;align-items:center;justify-content:space-between}
+.admin-header-title{font-family:'Kanit',sans-serif;font-size:13px;font-weight:500;display:flex;align-items:center;gap:7px}
+.admin-body{padding:16px}
+.admin-tabs{display:flex;gap:4px;margin-bottom:14px;border-bottom:1px solid var(--border);padding-bottom:7px}
+.atab{padding:5px 14px;border-radius:6px;border:none;font-size:12px;cursor:pointer;background:none;color:var(--text2);font-family:'Sarabun',sans-serif}
+.atab.on{background:var(--primary-l);color:var(--primary);font-weight:500}
+.form-row{display:flex;flex-wrap:wrap;gap:9px;margin-bottom:12px}
+.form-g{display:flex;flex-direction:column;gap:3px;flex:1;min-width:120px}
+.form-g label{font-size:10px;color:var(--text2);font-weight:600}
+.form-g input,.form-g select,.form-g textarea{padding:7px 9px;border:1px solid var(--border);border-radius:var(--r-sm);font-family:'Sarabun',sans-serif;font-size:12px;background:var(--bg3);color:var(--text)}
+.form-g input:focus,.form-g select:focus,.form-g textarea:focus{outline:2px solid #93c5fd;border-color:#3b82f6}
+.btn-save{background:var(--green);color:#fff;border:none;border-radius:var(--r-sm);padding:8px 18px;font-size:12px;font-family:'Sarabun',sans-serif;cursor:pointer;display:flex;align-items:center;gap:5px}
+.btn-save:hover{background:#047857}
+.save-ok{color:var(--green);font-size:11px;display:flex;align-items:center;gap:4px;margin-top:7px}
+
+/* MODALS */
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:300;align-items:center;justify-content:center;padding:16px}
+.overlay.show{display:flex}
+.modal{background:var(--card);border-radius:var(--r);padding:22px;width:100%;max-width:480px;box-shadow:0 20px 40px rgba(0,0,0,.2);position:relative;max-height:90vh;overflow-y:auto}
+.modal-lg{max-width:640px}
+.modal-title{font-family:'Kanit',sans-serif;font-size:15px;font-weight:500;margin-bottom:18px;display:flex;align-items:center;gap:8px}
+.modal-close{position:absolute;top:14px;right:14px;background:none;border:none;font-size:20px;cursor:pointer;color:var(--text2)}
+.btn-login{background:var(--primary);color:#fff;border:none;border-radius:var(--r-sm);padding:9px;font-size:13px;width:100%;margin-top:6px;cursor:pointer;font-family:'Sarabun',sans-serif;font-weight:500}
+.err{color:var(--red);font-size:11px;margin-top:7px;display:flex;align-items:center;gap:4px}
+.logout-btn{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);color:#fff;border-radius:5px;padding:3px 9px;font-size:11px;cursor:pointer;font-family:'Sarabun',sans-serif}
+.badge-green{background:var(--green-l);color:var(--green);border-radius:10px;padding:1px 8px;font-size:10px;font-weight:600;margin-left:8px}
+
+/* PILL COLORS */
+.p-agri{background:#ede9fe;color:#5b21b6}
+.p-fish{background:#d1fae5;color:#065f46}
+.p-colony{background:#ffedd5;color:#9a3412}
+.p-shop{background:#fce7f3;color:#9d174d}
+.p-save{background:#dbeafe;color:#1e40af}
+.p-svc{background:#fef3c7;color:#92400e}
+.p-credit{background:#dcfce7;color:#166534}
+.p-taxi{background:#cffafe;color:#155e75}
+.p-house{background:#ede9fe;color:#5b21b6}
+
+
+/* ── RESPONSIVE ── */
+@media(max-width:900px){
+  .layout{grid-template-columns:1fr}
+  .detail-panel{position:static}
+}
+
+/* ── TABLET 640–900px ── */
+@media(max-width:900px) and (min-width:641px){
+  .kpi-row{grid-template-columns:repeat(3,1fr)}
+  .charts-row{grid-template-columns:1fr 1fr}
+  .filters{gap:8px}
+  .f-group{min-width:140px}
+}
+
+/* ── MOBILE ≤640px ── */
+@media(max-width:640px){
+  /* topbar */
+  .topbar{padding:0 12px}
+  .topbar-brand{padding:7px 0}
+  .brand-title{font-size:12px;line-height:1.2}
+  .brand-sub{display:none}
+  .clock-box{display:none}
+  .btn-admin{padding:5px 10px;font-size:11px;margin-left:4px}
+  /* office bar */
+  .office-bar{padding:5px 12px;gap:6px}
+  .realtime-pill{font-size:10px}
+  /* main */
+  .main{padding:10px;padding-bottom:80px}/* space for bottom nav */
+  /* filters — collapsible on mobile */
+  .filters{gap:7px}
+  .f-group{min-width:calc(50% - 4px);flex:unset}
+  .search-box{min-width:100%;order:-1;flex:unset}
+  .btn-export{min-width:calc(50% - 4px);justify-content:center;flex:1}
+  /* kpi */
+  .kpi-row{grid-template-columns:1fr 1fr;gap:8px}
+  .kpi-val{font-size:19px}
+  .kpi{padding:10px 10px 10px 13px}
+  .kpi-label{font-size:10px}
+  .kpi-unit{font-size:10px}
+  .kpi-badge{font-size:10px;padding:1px 6px}
+  /* charts */
+  .charts-row{grid-template-columns:1fr;gap:10px}
+  .chart-card{padding:12px}
+  /* table → card mode */
+  .table-card .overflow-x{overflow-x:unset}
+  .tbl{display:block}
+  .tbl thead{display:none}
+  .tbl tbody{display:flex;flex-direction:column;gap:8px;padding:10px}
+  .tbl tr{display:grid;grid-template-columns:1fr 1fr;gap:4px 10px;
+          background:var(--bg3);border-radius:10px;padding:10px 12px;
+          border:1px solid var(--border);box-shadow:var(--shadow)}
+  .tbl tr.selected{background:var(--primary-l);border-color:#93c5fd}
+  .tbl td{display:flex;flex-direction:column;border:none;padding:0;font-size:12px}
+  .tbl td::before{content:attr(data-label);font-size:10px;color:var(--text3);
+                  font-weight:600;text-transform:uppercase;letter-spacing:.4px;margin-bottom:2px}
+  /* name spans full width */
+  .tbl td:first-child{grid-column:1/-1;font-weight:600;font-size:13px;
+                      white-space:normal;overflow:visible;text-overflow:unset;max-width:none}
+  .tbl td:first-child::before{display:none}
+  /* pagination */
+  .pagination{flex-direction:column;align-items:flex-start;gap:6px;padding:10px 12px}
+  .pg-btns{flex-wrap:wrap}
+  /* table header */
+  .table-header{flex-direction:column;align-items:flex-start;gap:6px}
+  /* admin */
+  .admin-panel .admin-body{padding:12px}
+  .admin-tabs{flex-wrap:wrap;gap:4px}
+  .atab{font-size:11px;padding:4px 10px}
+  .form-row{flex-direction:column;gap:8px}
+  .form-g{min-width:100%}
+  /* detail panel */
+  .detail-panel{margin-top:0;position:static}
+  .info-grid{grid-template-columns:1fr 1fr}
+  /* modals */
+  .overlay{padding:10px;align-items:flex-end}
+  .modal{border-radius:16px 16px 0 0;max-height:90vh;overflow-y:auto;padding:18px}
+  .modal-lg{max-width:100%;border-radius:16px 16px 0 0}
+  /* bottom nav */
+  .mobile-nav{display:flex}
+}
+
+/* ── VERY SMALL ≤400px ── */
+@media(max-width:400px){
+  .kpi-row{grid-template-columns:1fr}
+  .brand-title{font-size:11px}
+  .f-group{min-width:100%}
+  .btn-export{width:100%}
+}
+
+/* ── BOTTOM NAV (mobile only) ── */
+.mobile-nav{
+  display:none;
+  position:fixed;bottom:0;left:0;right:0;
+  background:var(--card);
+  border-top:1px solid var(--border);
+  box-shadow:0 -2px 10px rgba(0,0,0,.08);
+  z-index:150;
+  padding:0 4px;
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+.mobile-nav-inner{display:flex;justify-content:space-around;align-items:stretch}
+.mnav-btn{
+  flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:8px 4px;gap:3px;border:none;background:none;
+  color:var(--text3);font-family:'Sarabun',sans-serif;font-size:10px;cursor:pointer;
+  transition:color .15s;min-height:54px;
+}
+.mnav-btn i{font-size:20px}
+.mnav-btn.active{color:var(--primary)}
+.mnav-btn.active i{color:var(--primary)}
+/* sections shown/hidden via mobile nav */
+.mobile-section{display:block}
+@media(max-width:640px){
+  .mobile-section.hidden-mobile{display:none}
+}
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <div class="topbar-brand">
+    <div class="brand-icon">
+      <svg width="44" height="44" viewBox="0 0 44 44" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="โลโก้ระบบข้อมูลสหกรณ์">
+        <title>โลโก้ระบบข้อมูลสหกรณ์</title>
+        <!-- Shield background -->
+        <rect width="44" height="44" rx="11" fill="#1E3A8A"/>
+        <!-- Shield shape -->
+        <path d="M22 6 L36 11 L36 26 Q36 35 22 40 Q8 35 8 26 L8 11 Z" fill="#2563EB" stroke="#60A5FA" stroke-width="0.8"/>
+        <!-- 3 interlocking rings = unity / cooperation -->
+        <circle cx="22" cy="21" r="7" fill="none" stroke="#DBEAFE" stroke-width="2"/>
+        <circle cx="17" cy="28" r="7" fill="none" stroke="#93C5FD" stroke-width="2"/>
+        <circle cx="27" cy="28" r="7" fill="none" stroke="#BAE6FD" stroke-width="2"/>
+        <!-- Rising star = growth -->
+        <path d="M22 14 L23.3 18.2 L27.6 18.2 L24.2 20.8 L25.4 25 L22 22.4 L18.6 25 L19.8 20.8 L16.4 18.2 L20.7 18.2 Z" fill="#FCD34D"/>
+      </svg>
+    </div>
+    <div>
+      <div class="brand-title" id="officeTitle">สำนักงานส่งเสริมสหกรณ์กรุงเทพมหานคร พื้นที่ 1</div>
+      <div class="brand-sub" id="officeSub">ระบบข้อมูลสหกรณ์รายแห่ง · <span id="officeSubName">กรมส่งเสริมสหกรณ์</span></div>
+    </div>
+  </div>
+  <div class="topbar-right">
+    <div class="clock-box">
+      <div class="clock-time" id="clockTime">00:00:00</div>
+      <div id="clockDate" style="font-size:10px;opacity:.7"></div>
+    </div>
+    <button class="btn-admin" onclick="openLogin()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" role="img" aria-label="Admin"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg> Admin</button>
+  </div>
+</div>
+
+<!-- INFO BAR -->
+<div class="office-bar">
+  <div style="display:flex;align-items:center;gap:7px;color:rgba(255,255,255,.9);font-size:12px">
+    <svg width="16" height="16" viewBox="0 0 44 44" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0;opacity:.85" role="img" aria-label="โลโก้">
+        <rect width="44" height="44" rx="11" fill="#2563EB"/>
+        <path d="M22 5 L36 11 L36 26 Q36 35 22 40 Q8 35 8 26 L8 11 Z" fill="#3B82F6" stroke="#93C5FD" stroke-width="0.8"/>
+        <circle cx="22" cy="21" r="7" fill="none" stroke="#DBEAFE" stroke-width="2"/>
+        <circle cx="17" cy="28" r="7" fill="none" stroke="#93C5FD" stroke-width="2"/>
+        <circle cx="27" cy="28" r="7" fill="none" stroke="#BAE6FD" stroke-width="2"/>
+        <path d="M22 14 L23.3 18.2 L27.6 18.2 L24.2 20.8 L25.4 25 L22 22.4 L18.6 25 L19.8 20.8 L16.4 18.2 L20.7 18.2 Z" fill="#FCD34D"/>
+      </svg>
+    <span id="officeNameBar">สำนักงานส่งเสริมสหกรณ์กรุงเทพมหานคร พื้นที่ 1</span>
+  </div>
+  <div class="realtime-pill" style="margin-left:auto"><div class="dot"></div>Real-time · <span id="lastFetch">—</span></div>
+  <button class="btn-refresh" onclick="loadData()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" role="img" aria-label="รีเฟรช"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg> รีเฟรช</button>
+</div>
+
+<div class="demo-banner" id="demoBanner" style="display:none">
+  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+  <span>โหมดสาธิต (Demo Mode) — ยังไม่ได้เชื่อมต่อ Google Sheet จริง กำลังแสดงข้อมูลตัวอย่าง ตั้งค่า <code>API_URL</code> ในไฟล์เพื่อใช้ข้อมูลจริง</span>
+</div>
+
+<div class="main">
+
+  <!-- FILTERS -->
+  <div id="secFilters">
+  <div class="filters">
+    <div class="search-box">
+      <i class="ti ti-search search-icon"></i>
+      <input type="text" id="searchBox" placeholder="ค้นหาชื่อสหกรณ์..." oninput="applyFilter()">
+    </div>
+    <div class="f-group">
+      <span class="f-label">ประเภทสหกรณ์</span>
+      <select id="typeSel" onchange="applyFilter()">
+        <option value="all">ทุกประเภท</option>
+        <option>สหกรณ์การเกษตร</option>
+        <option>สหกรณ์ประมง</option>
+        <option>สหกรณ์นิคม</option>
+        <option>สหกรณ์ร้านค้า</option>
+        <option>สหกรณ์ออมทรัพย์</option>
+        <option>สหกรณ์บริการ</option>
+        <option>สหกรณ์เครดิตยูเนี่ยน</option>
+        <option>สหกรณ์แท็กซี่</option>
+        <option>สหกรณ์เคหสถาน (บ้านมั่นคง)</option>
+      </select>
+    </div>
+    <div class="f-group">
+      <span class="f-label">เขต/อำเภอ</span>
+      <select id="areaSel" onchange="applyFilter()"><option value="all">ทุกเขต/อำเภอ</option></select>
+    </div>
+    <div class="f-group">
+      <span class="f-label">สถานะ</span>
+      <select id="statusSel" onchange="applyFilter()">
+        <option value="all">ทุกสถานะ</option>
+        <option value="active">ดำเนินการปกติ</option>
+        <option value="probation">อยู่ระหว่างแก้ไข</option>
+        <option value="inactive">ยุบเลิก</option>
+      </select>
+    </div>
+    <div class="f-group">
+      <span class="f-label">ปี พ.ศ.</span>
+      <select id="yearSel" onchange="applyFilter()">
+        <option value="2569">2569</option><option value="2568">2568</option>
+      </select>
+    </div>
+    <button class="btn-export" onclick="exportCSV()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" role="img" aria-label="Export"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="12" y2="17"/></svg> Export CSV</button>
+  </div>
+
+  </div><!-- /filters inner -->
+  </div><!-- /secFilters -->
+
+  <!-- KPI -->
+  <div id="secKpi">
+  <div class="kpi-row" id="kpiRow"></div>
+
+  </div><!-- /secKpi -->
+
+  <!-- CHARTS -->
+  <div id="secCharts">
+  <div class="charts-row">
+    <div class="chart-card">
+      <div class="chart-head">
+        <div><div class="chart-title">สัดส่วนตามประเภท</div><div class="chart-sub">จำนวนสหกรณ์ในพื้นที่</div></div>
+        <div class="chart-tabs">
+          <button class="ctab on" onclick="sw2('doughnut',this)">วงกลม</button>
+          <button class="ctab" onclick="sw2('bar',this)">แท่ง</button>
+        </div>
+      </div>
+      <div style="position:relative;height:200px"><canvas id="chart2" role="img" aria-label="กราฟสัดส่วนตามประเภท">สัดส่วนประเภทสหกรณ์</canvas></div>
+      <div class="legend" id="leg2"></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-head">
+        <div><div class="chart-title" style="display:flex;align-items:center;gap:6px">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#D97706" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+        เปรียบเทียบปี 2568–2569</div><div class="chart-sub">จำนวนสมาชิกรวม</div></div>
+      </div>
+      <div style="position:relative;height:200px"><canvas id="chartYear" role="img" aria-label="กราฟเปรียบเทียบรายปี">เปรียบเทียบรายปี</canvas></div>
+    </div>
+
+  </div>
+
+  </div><!-- /charts-row -->
+  </div><!-- /secCharts -->
+
+  <!-- MAIN LAYOUT: TABLE + DETAIL -->
+  <div class="layout">
+    <!-- TABLE -->
+    <div id="secTable" style="min-width:0">
+    <div class="table-card">
+      <div class="table-header">
+        <div class="table-header-title">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><circle cx="4" cy="6" r="1.5" fill="var(--primary)" stroke="none"/><circle cx="4" cy="12" r="1.5" fill="var(--primary)" stroke="none"/><circle cx="4" cy="18" r="1.5" fill="var(--primary)" stroke="none"/></svg>
+          รายชื่อสหกรณ์
+          <span class="count-badge" id="countBadge">0 แห่ง</span>
+        </div>
+        <div style="font-size:11px;color:var(--text3)" id="tableSubText"></div>
+      </div>
+      <div class="overflow-x">
+        <table class="tbl">
+          <thead>
+            <tr>
+              <th onclick="sortBy('name')" title="เรียงตามชื่อ">ชื่อสหกรณ์ <i class="ti ti-selector sort-icon"></i></th>
+              <th onclick="sortBy('type')" title="เรียงตามประเภท">ประเภท <i class="ti ti-selector sort-icon"></i></th>
+              <th onclick="sortBy('area')">เขต/อำเภอ <i class="ti ti-selector sort-icon"></i></th>
+              <th onclick="sortBy('member')">สมาชิก (คน) <i class="ti ti-selector sort-icon"></i></th>
+              <th onclick="sortBy('capital')">ทุนดำเนินการ <i class="ti ti-selector sort-icon"></i></th>
+              <th>สถานะ</th>
+              <th onclick="sortBy('trend')">เทรนด์ <i class="ti ti-selector sort-icon"></i></th>
+            </tr>
+          </thead>
+          <tbody id="coopTbody"></tbody>
+        </table>
+      </div>
+      <div class="pagination">
+        <div id="pgInfo" style="font-size:11px;color:var(--text2)"></div>
+        <div class="pg-btns" id="pgBtns"></div>
+      </div>
+    </div>
+
+    </div><!-- /secTable -->
+    <!-- DETAIL PANEL -->
+    <div id="secDetail">
+    <div class="detail-panel" id="detailPanel">
+      <div class="detail-header">
+        <div class="detail-header-name" id="detailName">รายละเอียดสหกรณ์</div>
+        <div class="detail-header-sub" id="detailSub">กดเลือกสหกรณ์จากตารางด้านซ้าย</div>
+      </div>
+      <div class="detail-body">
+        <div class="detail-empty" id="detailEmpty">
+          <i class="ti ti-hand-click"></i>
+          <div style="font-size:13px;font-weight:500;margin-bottom:4px">เลือกสหกรณ์</div>
+          <div style="font-size:11px">กดที่แถวในตารางเพื่อดูข้อมูลรายละเอียด</div>
+        </div>
+        <div id="detailContent" style="display:none">
+          <div class="detail-section">
+            <div class="detail-section-title">ข้อมูลทั่วไป</div>
+            <div class="info-grid" id="detailInfoGrid"></div>
+          </div>
+          <div class="detail-section">
+            <div class="detail-section-title">ประวัติสมาชิก (2568–2569)</div>
+            <div class="mini-chart-wrap"><canvas id="miniChart" role="img" aria-label="กราฟประวัติสมาชิก">ประวัติสมาชิก</canvas></div>
+          </div>
+          <div class="detail-section">
+            <div class="detail-section-title">ข้อมูลรายปี</div>
+            <div id="historyRows"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+    </div><!-- /detail-panel -->
+    </div><!-- /secDetail -->
+
+  <!-- ADMIN -->
+  <div id="secAdmin">
+  <div id="adminPanel" style="display:none">
+    <div class="admin-panel">
+      <div class="admin-header">
+        <div class="admin-header-title"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" role="img" aria-label="Settings"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg> จัดการข้อมูลสหกรณ์ <span class="badge-green">Admin</span></div>
+        <button class="logout-btn" onclick="logout()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-1px"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg> ออกจากระบบ</button>
+      </div>
+      <div class="admin-body">
+        <div class="admin-tabs">
+          <button class="atab on" onclick="swAtab('add',this)">เพิ่มสหกรณ์ใหม่</button>
+          <button class="atab" onclick="swAtab('edit',this)">แก้ไข / ลบ</button>
+          <button class="atab" onclick="swAtab('year',this)">บันทึกข้อมูลรายปี</button>
+        </div>
+
+        <div id="tabAdd">
+
+          <!-- ตั้งค่าหน่วยงาน -->
+          <div style="background:var(--primary-l);border:1px solid #93c5fd;border-radius:9px;padding:12px 14px;margin-bottom:16px">
+            <div style="font-size:11px;font-weight:600;color:var(--primary);margin-bottom:9px;display:flex;align-items:center;gap:5px">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg> ตั้งค่าชื่อหน่วยงาน
+            </div>
+            <div style="display:flex;gap:9px;flex-wrap:wrap;align-items:flex-end">
+              <div class="form-g" style="flex:2;min-width:220px">
+                <label>ชื่อสำนักงาน (แสดงบน Dashboard)</label>
+                <input type="text" id="officeNameInput" placeholder="เช่น สำนักงานสหกรณ์จังหวัดเชียงใหม่">
+              </div>
+              <div class="form-g" style="min-width:180px">
+                <label>ชื่อหน่วยงานต้นสังกัด (แสดงบน Topbar)</label>
+                <input type="text" id="officeSubInput" placeholder="เช่น สำนักงานสหกรณ์จังหวัดเชียงใหม่">
+              </div>
+              <button onclick="saveOfficeName()" style="background:var(--primary);color:#fff;border:none;border-radius:var(--r-sm);padding:8px 16px;font-size:12px;font-family:'Sarabun',sans-serif;cursor:pointer;white-space:nowrap;display:flex;align-items:center;gap:5px">
+                <i class="ti ti-device-floppy" style="font-size:14px"></i> บันทึกชื่อ
+              </button>
+            </div>
+            <div id="officeNameOk" style="display:none;color:var(--green);font-size:11px;margin-top:7px;display:none;align-items:center;gap:4px">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> บันทึกชื่อหน่วยงานสำเร็จ
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-g" style="flex:2;min-width:200px"><label>ชื่อสหกรณ์ (เต็ม)</label><input type="text" id="aName" placeholder="เช่น สหกรณ์การเกษตรเขตพระนคร จำกัด"></div>
+            <div class="form-g"><label>ประเภทสหกรณ์</label>
+              <select id="aType"><option value="">-- เลือก --</option>
+                <option>สหกรณ์การเกษตร</option><option>สหกรณ์ประมง</option>
+                <option>สหกรณ์นิคม</option><option>สหกรณ์ร้านค้า</option>
+                <option>สหกรณ์ออมทรัพย์</option><option>สหกรณ์บริการ</option>
+                <option>สหกรณ์เครดิตยูเนี่ยน</option>
+                <option>สหกรณ์แท็กซี่</option>
+                <option>สหกรณ์เคหสถาน (บ้านมั่นคง)</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-g"><label>เขต/อำเภอ</label><input type="text" id="aArea" placeholder="เขต/อำเภอ"></div>
+            <div class="form-g"><label>เลขทะเบียน</label><input type="text" id="aRegNo" placeholder="เช่น กธ.01/2530"></div>
+            <div class="form-g"><label>ปีที่จดทะเบียน (พ.ศ.)</label><input type="number" id="aRegYear" placeholder="2530" min="2480" max="2569"></div>
+            <div class="form-g"><label>สถานะ</label>
+              <select id="aStatus"><option value="active">ดำเนินการปกติ</option><option value="probation">อยู่ระหว่างแก้ไข</option><option value="inactive">ยุบเลิก</option></select>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-g"><label>จำนวนสมาชิก (คน)</label><input type="number" id="aMember" placeholder="0" min="0"></div>
+            <div class="form-g"><label>ทุนดำเนินการ (บาท)</label><input type="number" id="aCapital" placeholder="0" min="0"></div>
+            <div class="form-g"><label>ปี พ.ศ. ของข้อมูล</label><select id="aYear"><option>2569</option><option>2568</option></select></div>
+          </div>
+          <div class="form-row">
+            <div class="form-g" style="flex:3"><label>ที่อยู่</label><input type="text" id="aAddr" placeholder="เลขที่ ถนน แขวง/ตำบล เขต/อำเภอ จังหวัด"></div>
+            <div class="form-g"><label>โทรศัพท์</label><input type="text" id="aPhone" placeholder="02-xxx-xxxx"></div>
+          </div>
+          <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+            <button class="btn-save" onclick="addCoop()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg> บันทึกสหกรณ์ใหม่</button>
+            <div id="saveOk" style="display:none" class="save-ok"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> บันทึกสำเร็จ</div>
+          </div>
+        </div>
+
+        <div id="tabEdit" style="display:none">
+          <div style="font-size:12px;color:var(--text2);margin-bottom:12px">กดปุ่ม <i class="ti ti-edit" style="font-size:12px"></i> ในตารางรายชื่อสหกรณ์ด้านบน หรือค้นหาด้านล่าง</div>
+          <div class="overflow-x">
+            <table class="tbl">
+              <thead><tr><th>ชื่อสหกรณ์</th><th>ประเภท</th><th>เขต/อำเภอ</th><th>สมาชิก</th><th>สถานะ</th><th>จัดการ</th></tr></thead>
+              <tbody id="adminTbody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div id="tabYear" style="display:none">
+          <div style="font-size:12px;color:var(--text2);margin-bottom:12px">บันทึกข้อมูลประจำปีของสหกรณ์ที่มีอยู่</div>
+          <div class="form-row">
+            <div class="form-g" style="flex:2"><label>เลือกสหกรณ์</label>
+              <select id="yCoop"><option value="">-- เลือกสหกรณ์ --</option></select>
+            </div>
+            <div class="form-g"><label>ปี พ.ศ.</label><select id="yYear"><option>2569</option><option>2568</option></select></div>
+          </div>
+          <div class="form-row">
+            <div class="form-g"><label>จำนวนสมาชิก (คน)</label><input type="number" id="yMember" placeholder="0"></div>
+            <div class="form-g"><label>สมาชิกสมทบ (คน)</label><input type="number" id="yAssoc" placeholder="0"></div>
+            <div class="form-g"><label>ทุนดำเนินการ (บาท)</label><input type="number" id="yCapital" placeholder="0"></div>
+            <div class="form-g"><label>กำไรสุทธิ (บาท)</label><input type="number" id="yProfit" placeholder="0"></div>
+          </div>
+          <button class="btn-save" onclick="saveYearData()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg> บันทึกข้อมูลประจำปี</button>
+          <div id="saveYearOk" style="display:none" class="save-ok"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> บันทึกสำเร็จ</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  </div><!-- /adminPanel wrapper -->
+  </div><!-- /secAdmin -->
+</div>
+
+<!-- MODALS -->
+<div class="overlay" id="loginOverlay">
+  <div class="modal">
+    <button class="modal-close" onclick="closeLogin()">×</button>
+    <div class="modal-title"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> เข้าสู่ระบบ Admin</div>
+    <div class="form-g" style="margin-bottom:10px"><label>Username</label><input type="text" id="uname" placeholder="ชื่อผู้ใช้งาน"></div>
+    <div class="form-g" style="margin-bottom:13px"><label>Password</label><input type="password" id="upass" placeholder="รหัสผ่าน" onkeydown="if(event.key==='Enter')doLogin()"></div>
+    <button class="btn-login" onclick="doLogin()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:6px;vertical-align:-2px"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg> เข้าสู่ระบบ</button>
+    <div class="err" id="loginErr" style="display:none"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg> ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง</div>
+  </div>
+</div>
+
+<div class="overlay" id="editOverlay">
+  <div class="modal modal-lg">
+    <button class="modal-close" onclick="document.getElementById('editOverlay').classList.remove('show')">×</button>
+    <div class="modal-title"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> แก้ไขข้อมูลสหกรณ์</div>
+    <input type="hidden" id="editId">
+    <input type="hidden" id="eOriginalName">
+    <div class="form-row">
+      <div class="form-g" style="flex:2"><label>ชื่อสหกรณ์</label><input type="text" id="eName"></div>
+      <div class="form-g"><label>ประเภท</label>
+        <select id="eType"><option>สหกรณ์การเกษตร</option><option>สหกรณ์ประมง</option><option>สหกรณ์นิคม</option><option>สหกรณ์ร้านค้า</option><option>สหกรณ์ออมทรัพย์</option><option>สหกรณ์บริการ</option><option>สหกรณ์เครดิตยูเนี่ยน</option><option>สหกรณ์แท็กซี่</option><option>สหกรณ์เคหสถาน (บ้านมั่นคง)</option></select>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-g"><label>เขต/อำเภอ</label><input type="text" id="eArea"></div>
+      <div class="form-g"><label>เลขทะเบียน</label><input type="text" id="eRegNo"></div>
+      <div class="form-g"><label>สถานะ</label><select id="eStatus"><option value="active">ดำเนินการปกติ</option><option value="probation">อยู่ระหว่างแก้ไข</option><option value="inactive">ยุบเลิก</option></select></div>
+    </div>
+    <div class="form-row">
+      <div class="form-g"><label>จำนวนสมาชิก (คน)</label><input type="number" id="eMember"></div>
+      <div class="form-g"><label>ทุนดำเนินการ (บาท)</label><input type="number" id="eCapital"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-g" style="flex:3"><label>ที่อยู่</label><input type="text" id="eAddr"></div>
+      <div class="form-g"><label>โทรศัพท์</label><input type="text" id="ePhone"></div>
+    </div>
+    <button class="btn-save" onclick="saveEdit()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg> บันทึกการแก้ไข</button>
+  </div>
+</div>
+
+<script>
+// ============================================================
+//  ตั้งค่าการเชื่อมต่อ Google Sheet (ผ่าน Google Apps Script Web App)
+//  1) เปิด Google Sheet → Extensions → Apps Script → วางโค้ด Code.gs
+//  2) รันฟังก์ชัน setupSheets() ครั้งเดียวเพื่อสร้างชีตที่ต้องใช้
+//  3) Deploy → New deployment → Web app → Execute as: Me,
+//     Who has access: Anyone → Deploy → คัดลอก Web app URL มาวางด้านล่าง
+//  ถ้าเว้นว่างไว้ ระบบจะเข้า "โหมดสาธิต" (Demo Mode) แสดงข้อมูลตัวอย่างแทน
+// ============================================================
+const API_URL = 'https://script.google.com/macros/s/AKfycbw_lbAMJ48sKe6_WVtEb-pZF26RChmazs0JOebBdHkipcasIOQ7xCv4ay_hTekT9k7HeQ/exec'; // ← วาง Google Apps Script Web App URL ที่นี่ เช่น https://script.google.com/macros/s/XXXX/exec
+
+// บัญชี Admin (ต้องตรงกับ user/pass ที่เช็คใน Code.gs ฝั่ง Apps Script)
+const ADMIN_USER = 'TTT';
+const ADMIN_PASS = '666';
+
+const TYPES=['สหกรณ์การเกษตร','สหกรณ์ประมง','สหกรณ์นิคม','สหกรณ์ร้านค้า','สหกรณ์ออมทรัพย์','สหกรณ์บริการ','สหกรณ์เครดิตยูเนี่ยน','สหกรณ์แท็กซี่','สหกรณ์เคหสถาน (บ้านมั่นคง)'];
+const SHORT=['การเกษตร','ประมง','นิคม','ร้านค้า','ออมทรัพย์','บริการ','เครดิตยูเนี่ยน','แท็กซี่','เคหสถาน'];
+const COLS=['#534AB7','#1D9E75','#D85A30','#D4537E','#378ADD','#BA7517','#639922','#0E7490','#7C3AED'];
+const PILL=['p-agri','p-fish','p-colony','p-shop','p-save','p-svc','p-credit','p-taxi','p-house'];
+
+// ── แปลงสถานะ ไทย (ที่เก็บใน Sheet) ↔ code ภาษาอังกฤษ (ที่หน้า Dashboard ใช้) ──
+const STATUS_TH2CODE = { 'ดำเนินการปกติ':'active', 'อยู่ระหว่างแก้ไข':'probation', 'ยุบเลิก':'inactive' };
+const STATUS_CODE2TH = { active:'ดำเนินการปกติ', probation:'อยู่ระหว่างแก้ไข', inactive:'ยุบเลิก' };
+function thToCode(s){ return STATUS_TH2CODE[s] || 'active'; }
+function codeToTh(c){ return STATUS_CODE2TH[c] || 'ดำเนินการปกติ'; }
+
+// ── เรียก Google Apps Script Web App (POST) สำหรับ เพิ่ม/แก้ไข/ลบ ──
+// ใช้ Content-Type: text/plain เพื่อเลี่ยง CORS preflight ซึ่ง Apps Script Web App ตอบไม่ได้
+async function postAPI(action, payload){
+  if(!API_URL){ throw new Error('ยังไม่ได้ตั้งค่า API_URL — กำลังอยู่ในโหมดสาธิต ไม่สามารถบันทึกได้'); }
+  const res = await fetch(API_URL, {
+    method:'POST',
+    headers:{ 'Content-Type':'text/plain;charset=utf-8' },
+    body: JSON.stringify({ action, user: adminUser, pass: adminPass, ...payload })
+  });
+  let data;
+  try{ data = await res.json(); } catch(e){ throw new Error('เซิร์ฟเวอร์ตอบกลับไม่ถูกต้อง'); }
+  if(!data.success) throw new Error(data.message || 'บันทึกไม่สำเร็จ');
+  return data;
+}
+
+// =================== MOCK DATA GENERATOR (ใช้เฉพาะโหมดสาธิต) ===================
+function genCoops(office) {
+  const configs = {
+    bkk1: { areas:['เขตพระนคร','เขตดุสิต','เขตสัมพันธวงศ์','เขตบางรัก','เขตสาทร','เขตบางคอแหลม','เขตยานนาวา','เขตคลองสาน','เขตธนบุรี','เขตบางกอกใหญ่'], profile:'urban' },
+    bkk2: { areas:['เขตลาดกระบัง','เขตประเวศ','เขตมีนบุรี','เขตหนองจอก','เขตลำปลาทิว','เขตทุ่งครุ'], profile:'urban' },
+    nonthaburi: { areas:['อ.เมืองนนทบุรี','อ.บางใหญ่','อ.บางบัวทอง','อ.บางกรวย','อ.ปากเกร็ด','อ.ไทรน้อย'], profile:'mixed' },
+    pathumthani: { areas:['อ.เมืองปทุมธานี','อ.คลองหลวง','อ.ธัญบุรี','อ.ลำลูกกา','อ.หนองเสือ','อ.ลาดหลุมแก้ว','อ.สามโคก'], profile:'mixed' },
+    samutprakarn: { areas:['อ.เมืองสมุทรปราการ','อ.บางบ่อ','อ.บางพลี','อ.พระประแดง','อ.พระสมุทรเจดีย์'], profile:'coastal' },
+    chiangmai: { areas:['อ.เมืองเชียงใหม่','อ.แม่ริม','อ.สันทราย','อ.สันกำแพง','อ.หางดง','อ.สารภี','อ.ดอยสะเก็ด'], profile:'agri' },
+    chiangrai: { areas:['อ.เมืองเชียงราย','อ.เชียงของ','อ.เทิง','อ.พาน','อ.แม่จัน'], profile:'agri' },
+    khonkaen: { areas:['อ.เมืองขอนแก่น','อ.บ้านไผ่','อ.พล','อ.ชุมแพ','อ.บ้านฝาง'], profile:'agri' },
+    songkhla: { areas:['อ.เมืองสงขลา','อ.หาดใหญ่','อ.สทิงพระ','อ.ระโนด','อ.กระแสสินธุ์'], profile:'coastal' },
+  };
+  const c = configs[office] || configs.bkk1;
+  const typeWeights = {
+    urban:   [1,0,0,3,5,4,2],
+    mixed:   [4,1,1,2,3,3,2],
+    agri:    [8,0,2,1,2,2,1],
+    coastal: [3,4,1,2,3,2,2],
+  };
+  const w = typeWeights[c.profile];
+  const statusPool = ['active','active','active','active','active','probation','inactive'];
+  const prefixes = { urban:['กรุงเทพ','เมืองหลวง','ร่วมใจ','สามัคคี','พัฒนา'], mixed:['พัฒนา','ก้าวหน้า','รุ่งเรือง','สามัคคี','ร่วมแรง'], agri:['เกษตรก้าวหน้า','ชาวนา','เกษตรกร','ไร่นา','ผืนแผ่นดิน'], coastal:['ชายทะเล','ประมงสุข','ริมทะเล','ลุ่มน้ำ','ประมงพื้นบ้าน'] };
+  const pre = prefixes[c.profile];
+  let id = 1;
+  const coops = [];
+  c.areas.forEach(area => {
+    TYPES.forEach((type, ti) => {
+      const n = w[ti]; if(!n) return;
+      for(let k=0;k<n;k++){
+        const m68 = Math.floor(Math.random()*900)+50;
+        const m69 = Math.max(10, m68 + Math.floor(Math.random()*60)-20);
+        const cap = (m69 * (Math.floor(Math.random()*50000)+10000));
+        const profit = Math.floor(cap * (Math.random()*0.15));
+        const trend = m69>m68?'up':m69<m68?'down':'flat';
+        coops.push({
+          id: office+'_'+id++,
+          name: type+pre[k%pre.length]+area.replace('อ.','').replace('เขต','')+' '+(k>0?'(สาขา '+(k+1)+')':'')+ ' จำกัด',
+          type, area,
+          regNo: (office==='bkk1'||office==='bkk2'?'กธ':'จ')+'.'+Math.floor(Math.random()*9000+1000).toString().padStart(4,'0'),
+          regYear: 2500+Math.floor(Math.random()*60),
+          status: statusPool[Math.floor(Math.random()*statusPool.length)],
+          addr: Math.floor(Math.random()*999+1)+' ถ.สุขุมวิท '+area.replace('อ.','').replace('เขต','')+' กรุงเทพฯ 10110',
+          phone: '02-'+Math.floor(Math.random()*900+100)+'-'+Math.floor(Math.random()*9000+1000),
+          years: {
+            '2568': {member:m68, assoc:Math.floor(m68*0.1), capital:Math.floor(cap*0.92), profit:Math.floor(profit*0.9)},
+            '2569': {member:m69, assoc:Math.floor(m69*0.1), capital:cap, profit},
+          },
+          trend,
+        });
+      }
+    });
+  });
+  return coops;
+}
+
+// =================== STATE ===================
+let currentOffice = 'bkk1';
+let allCoops = [];
+let filtered = [];
+let sortField = 'name', sortDir = 1;
+let page = 1; const PER_PAGE = 15;
+let selectedId = null;
+let chart2=null, chartYear=null, miniChart=null;
+let chart2Type = 'doughnut';
+let adminUser = null, adminPass = null;
+let isDemoMode = false;
+
+const OFFICE_NAME_KEY = 'coopOfficeName';
+const OFFICE_SUB_KEY  = 'coopOfficeSub';
+
+function syncOfficeName() {
+  const name = localStorage.getItem(OFFICE_NAME_KEY) || 'สำนักงานส่งเสริมสหกรณ์กรุงเทพมหานคร พื้นที่ 1';
+  const sub  = localStorage.getItem(OFFICE_SUB_KEY)  || 'กรมส่งเสริมสหกรณ์';
+  document.getElementById('officeTitle').textContent   = name;
+  document.getElementById('officeNameBar').textContent = name;
+  document.getElementById('officeSubName').textContent = sub;
+  const inp = document.getElementById('officeNameInput');
+  if(inp) inp.value = name;
+  const inp2 = document.getElementById('officeSubInput');
+  if(inp2) inp2.value = sub;
+}
+
+function saveOfficeName() {
+  const name = document.getElementById('officeNameInput').value.trim();
+  const sub  = document.getElementById('officeSubInput').value.trim();
+  if(!name){ alert('กรุณากรอกชื่อสำนักงาน'); return; }
+  localStorage.setItem(OFFICE_NAME_KEY, name);
+  if(sub) localStorage.setItem(OFFICE_SUB_KEY, sub);
+  syncOfficeName();
+  const ok = document.getElementById('officeNameOk');
+  ok.style.display='flex';
+  setTimeout(()=>ok.style.display='none', 2500);
+}
+
+async function loadData() {
+  syncOfficeName();
+  document.getElementById('lastFetch').textContent = 'กำลังโหลด...';
+  try {
+    if (API_URL) {
+      const res = await fetch(API_URL + (API_URL.includes('?') ? '&' : '?') + 't=' + Date.now());
+      const data = await res.json();
+      if (!data.success) throw new Error(data.message || 'โหลดข้อมูลไม่สำเร็จ');
+      allCoops = (data.coops || []).map(c => ({ ...c, status: thToCode(c.status) }));
+      isDemoMode = false;
+    } else {
+      allCoops = genCoops(currentOffice);
+      isDemoMode = true;
+    }
+  } catch (err) {
+    console.error('loadData error:', err);
+    allCoops = genCoops(currentOffice);
+    isDemoMode = true;
+  }
+  updateDemoBanner();
+  // populate area filter
+  const areas = [...new Set(allCoops.map(c=>c.area))].sort();
+  const sel = document.getElementById('areaSel');
+  sel.innerHTML = '<option value="all">ทุกเขต/อำเภอ</option>';
+  areas.forEach(a => { const o=document.createElement('option');o.value=a;o.textContent=a;sel.appendChild(o); });
+  // populate year coop select
+  const yc = document.getElementById('yCoop');
+  yc.innerHTML = '<option value="">-- เลือกสหกรณ์ --</option>';
+  allCoops.forEach(c => { const o=document.createElement('option');o.value=c.id;o.textContent=c.name;yc.appendChild(o); });
+  document.getElementById('lastFetch').textContent = new Date().toLocaleTimeString('th-TH');
+  applyFilter();
+}
+
+function updateDemoBanner(){
+  const b = document.getElementById('demoBanner');
+  if(!b) return;
+  b.style.display = isDemoMode ? 'flex' : 'none';
+}
+
+function applyFilter() {
+  const q = document.getElementById('searchBox').value.toLowerCase();
+  const type = document.getElementById('typeSel').value;
+  const area = document.getElementById('areaSel').value;
+  const status = document.getElementById('statusSel').value;
+  filtered = allCoops.filter(c =>
+    (!q || c.name.toLowerCase().includes(q) || c.regNo.toLowerCase().includes(q)) &&
+    (type==='all' || c.type===type) &&
+    (area==='all' || c.area===area) &&
+    (status==='all' || c.status===status)
+  );
+  doSort();
+  page = 1;
+  renderAll();
+}
+
+function doSort() {
+  const yr = document.getElementById('yearSel').value;
+  filtered.sort((a,b) => {
+    let va,vb;
+    if(sortField==='member'){ va=a.years[yr]?.member||0; vb=b.years[yr]?.member||0; }
+    else if(sortField==='capital'){ va=a.years[yr]?.capital||0; vb=b.years[yr]?.capital||0; }
+    else if(sortField==='trend'){ va=a.trend; vb=b.trend; }
+    else { va=a[sortField]||''; vb=b[sortField]||''; }
+    if(va<vb) return -sortDir;
+    if(va>vb) return sortDir;
+    return 0;
+  });
+}
+
+function sortBy(field) {
+  if(sortField===field) sortDir*=-1; else { sortField=field; sortDir=1; }
+  doSort(); renderTable();
+}
+
+function renderAll() {
+  renderKPI();
+  renderCharts();
+  renderTable();
+}
+
+function renderKPI() {
+  const yr = document.getElementById('yearSel').value;
+  const prev = yr==='2569'?'2568':'2568';
+  const active = filtered.filter(c=>c.status==='active').length;
+  const totalM = filtered.reduce((s,c)=>s+(c.years[yr]?.member||0),0);
+  const prevM = filtered.reduce((s,c)=>s+(c.years[prev]?.member||0),0);
+  const totalCap = filtered.reduce((s,c)=>s+(c.years[yr]?.capital||0),0);
+  const pctM = prevM>0?((totalM-prevM)/prevM*100).toFixed(1):0;
+  const topType = TYPES.reduce((best,t)=>{const v=filtered.filter(c=>c.type===t).length;return v>best.v?{t,v}:best;},{t:'',v:-1}).t.replace('สหกรณ์','');
+  const capFmt = v => {
+    if(v>=1000000) return Math.round(v/1000000).toLocaleString('th-TH')+' ล้านบาท';
+    if(v>=1000)    return Math.round(v/1000).toLocaleString('th-TH')+' พันบาท';
+    return v.toLocaleString('th-TH')+' บาท';
+  };
+  const inactive = filtered.filter(c=>c.status==='inactive').length;
+  const probation = filtered.filter(c=>c.status==='probation').length;
+  const kpis=[
+    { label:'สหกรณ์ทั้งหมด', val:filtered.length.toLocaleString(), unit:'แห่งในพื้นที่', pct:null, col:'#534AB7', bg:'#EDE9FE',
+      icon:`<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#534AB7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>` },
+    { label:'ดำเนินการปกติ', val:active.toLocaleString(), unit:`แห่ง · แก้ไข ${probation} · ยุบ ${inactive}`, pct:null, col:'#059669', bg:'#D1FAE5',
+      icon:`<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>` },
+    { label:'สมาชิกรวม', val:totalM.toLocaleString(), unit:'คน', pct:pctM, col:'#378ADD', bg:'#DBEAFE',
+      icon:`<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#378ADD" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>` },
+    { label:'ทุนดำเนินการรวม', val:capFmt(totalCap), unit:'บาท', pct:null, col:'#BA7517', bg:'#FEF3C7',
+      icon:`<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#BA7517" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>` },
+    { label:'ประเภทมากที่สุด', val:topType||'—', unit:'สหกรณ์', pct:null, col:'#D85A30', bg:'#FFEDD5',
+      icon:`<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#D85A30" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>` },
+  ];
+  document.getElementById('kpiRow').innerHTML=kpis.map(k=>`
+    <div class="kpi" style="padding:0;overflow:hidden">
+      <div style="padding:12px 14px 8px;display:flex;align-items:flex-start;gap:10px">
+        <div style="background:${k.bg};border-radius:8px;width:32px;height:32px;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px">${k.icon}</div>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:10px;color:#8a9ab0;font-weight:600;margin-bottom:4px;text-transform:uppercase;letter-spacing:.4px">${k.label}</div>
+          <div style="font-family:'Kanit',sans-serif;font-size:18px;font-weight:600;color:#1a2332;line-height:1.15;word-break:break-word">${k.val}</div>
+        </div>
+      </div>
+      <div style="padding:6px 14px 10px;display:flex;align-items:center;justify-content:space-between">
+        <span style="font-size:10px;color:#8a9ab0">${k.unit}</span>
+        ${k.pct!==null
+          ?`<span style="display:inline-flex;align-items:center;gap:3px;font-size:10px;font-weight:600;padding:2px 7px;border-radius:20px;background:${parseFloat(k.pct)>=0?'#D1FAE5':'#FEE2E2'};color:${parseFloat(k.pct)>=0?'#065F46':'#991B1B'}">
+              ${parseFloat(k.pct)>=0
+                ?'<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>'
+                :'<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 18 13.5 8.5 8.5 13.5 1 6"/><polyline points="17 18 23 18 23 12"/></svg>'}
+              ${parseFloat(k.pct)>=0?'+':''}${k.pct}%</span>`
+          :`<div style="width:3px;height:3px;border-radius:50%;background:${k.col};opacity:.4"></div>`}
+      </div>
+      <div style="height:3px;background:${k.col};opacity:.25"></div>
+    </div>`).join('');
+}
+
+function renderCharts() {
+  const yr = document.getElementById('yearSel').value;
+  // Chart 2: type distribution
+  if(chart2){chart2.destroy();}
+  const ctx2=document.getElementById('chart2').getContext('2d');
+  const typeCounts=TYPES.map(t=>filtered.filter(c=>c.type===t).length);
+  if(chart2Type==='doughnut'){
+    chart2=new Chart(ctx2,{type:'doughnut',data:{labels:TYPES,datasets:[{data:typeCounts,backgroundColor:COLS,borderColor:'#fff',borderWidth:2,hoverOffset:8}]},
+      options:{responsive:true,maintainAspectRatio:false,cutout:'60%',plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>' '+c.label.replace('สหกรณ์','')+': '+c.parsed+' แห่ง'}}},animation:{duration:400,animateScale:true}},
+      plugins:[{id:'ctr',beforeDraw(ch){const{width:w,height:h,ctx:x}=ch;x.save();x.textAlign='center';x.textBaseline='middle';x.fillStyle='#8a9ab0';x.font='10px Sarabun';x.fillText('รวม',w/2,h/2-9);x.fillStyle='#1a2332';x.font='bold 15px Kanit';x.fillText(filtered.length,w/2,h/2+9);x.restore();}}]
+    });
+  } else {
+    chart2=new Chart(ctx2,{type:'bar',data:{labels:SHORT,datasets:[{data:typeCounts,backgroundColor:COLS,borderColor:COLS,borderWidth:1,borderRadius:5,borderSkipped:false}]},
+      options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>' '+c.parsed+' แห่ง'}}},scales:{x:{grid:{display:false},ticks:{font:{size:10}}},y:{grid:{color:'rgba(0,0,0,.05)'},ticks:{font:{size:10}}}},animation:{duration:400}},
+      plugins:[{id:'l',afterDatasetsDraw(ch){ch.getDatasetMeta(0).data.forEach((b,i)=>{const v=typeCounts[i];if(!v)return;const{x,y}=b.getProps(['x','y'],true);ctx2.save();ctx2.font='500 9px sans-serif';ctx2.fillStyle='rgba(50,50,50,.7)';ctx2.textAlign='center';ctx2.textBaseline='bottom';ctx2.fillText(v,x,y-2);ctx2.restore();});}}]
+    });
+  }
+  document.getElementById('leg2').innerHTML=TYPES.map((t,i)=>`<div class="leg"><div class="leg-sq" style="background:${COLS[i]}"></div>${t.replace('สหกรณ์','')}</div>`).join('');
+
+  // Chart Year
+  if(chartYear){chartYear.destroy();}
+  const ctxY=document.getElementById('chartYear').getContext('2d');
+  const m68=TYPES.map(t=>filtered.filter(c=>c.type===t).reduce((s,c)=>s+(c.years['2568']?.member||0),0));
+  const m69=TYPES.map(t=>filtered.filter(c=>c.type===t).reduce((s,c)=>s+(c.years['2569']?.member||0),0));
+  chartYear=new Chart(ctxY,{type:'bar',data:{labels:SHORT,datasets:[
+    {label:'2568',data:m68,backgroundColor:COLS.map(c=>c+'BB'),borderColor:COLS,borderWidth:1,borderRadius:4,borderSkipped:false},
+    {label:'2569',data:m69,backgroundColor:COLS.map(c=>c+'EE'),borderColor:COLS,borderWidth:1.5,borderRadius:4,borderSkipped:false},
+  ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>' ปี '+c.dataset.label+': '+c.parsed.y.toLocaleString()+' คน'}}},scales:{x:{grid:{display:false},ticks:{font:{size:10}}},y:{grid:{color:'rgba(0,0,0,.05)'},ticks:{callback:v=>v.toLocaleString(),font:{size:10}}}},animation:{duration:400}}});
+
+
+}
+
+const TYPE_ICON_SVG = {
+  'สหกรณ์การเกษตร': '<svg width="18" height="18" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="สหกรณ์การเกษตร">  <rect width="64" height="64" rx="14" fill="#534AB7"/>  <line x1="32" y1="52" x2="32" y2="24" stroke="#EDE9FE" stroke-width="2.5" stroke-linecap="round"/>  <line x1="24" y1="44" x2="24" y2="28" stroke="#AFA9EC" stroke-width="2" stroke-linecap="round"/>  <line x1="40" y1="44" x2="40" y2="28" stroke="#AFA9EC" stroke-width="2" stroke-linecap="round"/>  <ellipse cx="32" cy="20" rx="4" ry="7" fill="#DBEAFE"/>  <ellipse cx="24" cy="25" rx="3" ry="5" fill="#C7D2FE"/>  <ellipse cx="40" cy="25" rx="3" ry="5" fill="#C7D2FE"/>  <circle cx="32" cy="14" r="6" fill="#FCD34D"/></svg>',
+  'สหกรณ์ประมง': '<svg width="18" height="18" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="สหกรณ์ประมง">  <rect width="64" height="64" rx="14" fill="#1D9E75"/>  <ellipse cx="30" cy="30" rx="14" ry="9" fill="#9FE1CB"/>  <path d="M44 30 L54 22 L54 38 Z" fill="#5DCAA5"/>  <path d="M30 21 Q36 16 42 21" fill="none" stroke="#E1F5EE" stroke-width="2" stroke-linecap="round"/>  <circle cx="22" cy="27" r="2.5" fill="#0F6E56"/>  <circle cx="21" cy="26.5" r="1" fill="#E1F5EE"/>  <path d="M18 44 Q26 39 34 44 Q42 49 50 44" fill="none" stroke="#5DCAA5" stroke-width="2" stroke-linecap="round"/></svg>',
+  'สหกรณ์นิคม': '<svg width="18" height="18" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="สหกรณ์นิคม">  <rect width="64" height="64" rx="14" fill="#D85A30"/>  <rect x="14" y="38" width="14" height="16" rx="1.5" fill="#FAECE7"/>  <rect x="32" y="30" width="18" height="24" rx="1.5" fill="#F5C4B3"/>  <rect x="18" y="26" width="8" height="6" rx="1" fill="#F0997B"/>  <path d="M20 26 Q17 18 20 12" fill="none" stroke="#FAECE7" stroke-width="2.5" stroke-linecap="round"/>  <path d="M25 26 Q28 19 25 13" fill="none" stroke="#F5C4B3" stroke-width="2" stroke-linecap="round"/>  <line x1="10" y1="54" x2="54" y2="54" stroke="#FAECE7" stroke-width="2" stroke-linecap="round"/></svg>',
+  'สหกรณ์ร้านค้า': '<svg width="18" height="18" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="สหกรณ์ร้านค้า">  <rect width="64" height="64" rx="14" fill="#D4537E"/>  <rect x="10" y="30" width="44" height="24" rx="2" fill="#FBEAF0"/>  <rect x="10" y="30" width="44" height="12" rx="2" fill="#F4C0D1"/>  <rect x="24" y="40" width="16" height="14" rx="1.5" fill="#D4537E"/>  <circle cx="31" cy="47" r="1.5" fill="#FBEAF0"/>  <rect x="12" y="34" width="10" height="10" rx="1" fill="#ED93B1"/>  <rect x="42" y="34" width="10" height="10" rx="1" fill="#ED93B1"/>  <text x="32" y="29" font-family="Arial" font-size="8" fill="#993556" text-anchor="middle" font-weight="700">SHOP</text></svg>',
+  'สหกรณ์ออมทรัพย์': '<svg width="18" height="18" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="สหกรณ์ออมทรัพย์">  <rect width="64" height="64" rx="14" fill="#378ADD"/>  <ellipse cx="30" cy="34" rx="16" ry="14" fill="#B5D4F4"/>  <ellipse cx="46" cy="37" rx="6" ry="5" fill="#85B7EB"/>  <circle cx="44.5" cy="35.5" r="1.5" fill="#185FA5"/>  <circle cx="47.5" cy="35.5" r="1.5" fill="#185FA5"/>  <rect x="25" y="22" width="12" height="3" rx="1.5" fill="#185FA5"/>  <ellipse cx="20" cy="24" rx="5" ry="4" fill="#85B7EB"/>  <ellipse cx="20" cy="24" rx="3" ry="2.5" fill="#B5D4F4"/>  <rect x="20" y="46" width="5" height="8" rx="2.5" fill="#85B7EB"/>  <rect x="28" y="46" width="5" height="8" rx="2.5" fill="#85B7EB"/>  <rect x="36" y="46" width="5" height="8" rx="2.5" fill="#85B7EB"/>  <circle cx="30" cy="29" r="4" fill="#FCD34D" stroke="#F59E0B" stroke-width="0.8"/>  <text x="30" y="31.5" font-family="Arial" font-size="5" font-weight="700" fill="#92400E" text-anchor="middle">฿</text></svg>',
+  'สหกรณ์บริการ': '<svg width="18" height="18" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="สหกรณ์บริการ">  <rect width="64" height="64" rx="14" fill="#BA7517"/>  <path d="M18 34 Q24 26 30 30 L38 26 Q46 26 46 34" fill="none" stroke="#FAC775" stroke-width="2.5" stroke-linecap="round"/>  <path d="M18 34 L18 44" stroke="#FAC775" stroke-width="2.5" stroke-linecap="round"/>  <path d="M46 34 L46 44" stroke="#FAC775" stroke-width="2.5" stroke-linecap="round"/>  <ellipse cx="32" cy="42" rx="14" ry="8" fill="#EF9F27"/>  <path d="M20 42 Q32 50 44 42" fill="none" stroke="#FAC775" stroke-width="2"/>  <path d="M32 26 L34 32 L40 32 L35 36 L37 42 L32 38 L27 42 L29 36 L24 32 L30 32 Z" fill="#FCD34D"/></svg>',
+  'สหกรณ์เครดิตยูเนี่ยน': '<svg width="18" height="18" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="สหกรณ์เครดิตยูเนี่ยน">  <rect width="64" height="64" rx="14" fill="#639922"/>  <circle cx="32" cy="32" r="10" fill="none" stroke="#C0DD97" stroke-width="2.5"/>  <text x="32" y="36" font-family="Arial" font-size="12" font-weight="700" fill="#DBEAFE" text-anchor="middle">฿</text>  <circle cx="32" cy="16" r="4.5" fill="#97C459"/>  <circle cx="46" cy="24" r="4.5" fill="#97C459"/>  <circle cx="46" cy="40" r="4.5" fill="#97C459"/>  <circle cx="32" cy="48" r="4.5" fill="#97C459"/>  <circle cx="18" cy="40" r="4.5" fill="#97C459"/>  <circle cx="18" cy="24" r="4.5" fill="#97C459"/></svg>',
+  'สหกรณ์แท็กซี่': '<svg width="18" height="18" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="สหกรณ์แท็กซี่">  <rect width="64" height="64" rx="14" fill="#0E7490"/>  <rect x="10" y="36" width="44" height="18" rx="3" fill="#CFFAFE"/>  <rect x="16" y="28" width="32" height="10" rx="2" fill="#A5F3FC"/>  <rect x="22" y="24" width="20" height="6" rx="1.5" fill="#FCD34D"/>  <text x="32" y="29" font-family="Arial" font-size="6" font-weight="700" fill="#0E7490" text-anchor="middle">TAXI</text>  <rect x="12" y="37" width="10" height="10" rx="1" fill="#67E8F9"/>  <rect x="26" y="37" width="10" height="10" rx="1" fill="#67E8F9"/>  <rect x="40" y="37" width="10" height="10" rx="1" fill="#67E8F9"/>  <circle cx="18" cy="56" r="7" fill="#155E75" stroke="#CFFAFE" stroke-width="1.5"/>  <circle cx="18" cy="56" r="3" fill="#CFFAFE"/>  <circle cx="46" cy="56" r="7" fill="#155E75" stroke="#CFFAFE" stroke-width="1.5"/>  <circle cx="46" cy="56" r="3" fill="#CFFAFE"/></svg>',
+  'สหกรณ์เคหสถาน (บ้านมั่นคง)': '<svg width="18" height="18" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="สหกรณ์เคหสถาน">  <rect width="64" height="64" rx="14" fill="#7C3AED"/>  <path d="M32 14 L54 34 L42 34 L42 54 L22 54 L22 34 L10 34 Z" fill="#DDD6FE"/>  <path d="M32 14 L54 34 L42 34 L42 54 L22 54 L22 34 L10 34 Z" fill="none" stroke="#8B5CF6" stroke-width="1"/>  <rect x="26" y="40" width="12" height="14" rx="1.5" fill="#8B5CF6"/>  <circle cx="35" cy="47" r="1.5" fill="#DDD6FE"/>  <rect x="24" y="36" width="7" height="7" rx="1" fill="#C4B5FD"/>  <rect x="33" y="36" width="7" height="7" rx="1" fill="#C4B5FD"/>  <rect x="35" y="14" width="5" height="10" rx="1" fill="#EDE9FE"/>  <path d="M32 20 Q34 17 36 20 Q38 15 40 20 Q40 25 36 28 Q32 25 32 20 Z" fill="#FCD34D"/></svg>',
+};
+
+function renderTable() {
+  const yr = document.getElementById('yearSel').value;
+  const start=(page-1)*PER_PAGE, end=start+PER_PAGE;
+  const pageData=filtered.slice(start,end);
+  document.getElementById('countBadge').textContent=filtered.length+' แห่ง';
+  document.getElementById('tableSubText').textContent='แสดง '+(start+1)+'–'+Math.min(end,filtered.length)+' จาก '+filtered.length;
+
+  const tbody=document.getElementById('coopTbody');
+  tbody.innerHTML=pageData.map(c=>{
+    const m=c.years[yr]?.member||0;
+    const cap=c.years[yr]?.capital||0;
+    const ti=TYPES.indexOf(c.type);
+    const statusHtml=c.status==='active'
+      ?`<span style="display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:20px;background:#D1FAE5;font-size:11px;font-weight:600;color:#065F46">
+          <svg width="8" height="8" viewBox="0 0 8 8"><circle cx="4" cy="4" r="4" fill="#059669"/></svg>ดำเนินการปกติ</span>`
+      :c.status==='probation'
+      ?`<span style="display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:20px;background:#FEF3C7;font-size:11px;font-weight:600;color:#92400E">
+          <svg width="8" height="8" viewBox="0 0 8 8"><circle cx="4" cy="4" r="4" fill="#D97706"/></svg>อยู่ระหว่างแก้ไข</span>`
+      :`<span style="display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:20px;background:#F3F4F6;font-size:11px;font-weight:600;color:#374151">
+          <svg width="8" height="8" viewBox="0 0 8 8"><circle cx="4" cy="4" r="4" fill="#9CA3AF"/></svg>ยุบเลิก</span>`;
+    const trendHtml=c.trend==='up'
+      ?`<span style="display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:20px;background:#D1FAE5;font-size:11px;font-weight:600;color:#065F46">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>เพิ่มขึ้น</span>`
+      :c.trend==='down'
+      ?`<span style="display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:20px;background:#FEE2E2;font-size:11px;font-weight:600;color:#991B1B">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#DC2626" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 18 13.5 8.5 8.5 13.5 1 6"/><polyline points="17 18 23 18 23 12"/></svg>ลดลง</span>`
+      :`<span style="display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:20px;background:#F3F4F6;font-size:11px;font-weight:600;color:#6B7280">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/></svg>คงที่</span>`;
+    return `<tr onclick="selectCoop('${c.id}')" class="${selectedId===c.id?'selected':''}">
+      <td data-label="" style="font-weight:500;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${c.name}">${c.name}</td>
+      <td data-label="ประเภท" style="white-space:nowrap"><span style="display:inline-flex;align-items:center;gap:5px"><span style="flex-shrink:0;display:inline-flex">${TYPE_ICON_SVG[c.type]||''}</span><span class="type-pill ${PILL[ti]}">${c.type.replace('สหกรณ์','')}</span></span></td>
+      <td data-label="เขต/อำเภอ" style="white-space:nowrap;color:var(--text2)">${c.area}</td>
+      <td data-label="สมาชิก (คน)" style="text-align:right">${m.toLocaleString()}</td>
+      <td data-label="ทุนดำเนินการ" style="text-align:right;font-size:11px">${cap>=1000000?(cap/1000000).toFixed(2)+'M':cap>=1000?(cap/1000).toFixed(0)+'K':cap.toLocaleString()}</td>
+      <td data-label="สถานะ">${statusHtml}</td>
+      <td data-label="เทรนด์">${trendHtml}</td>
+    </tr>`;
+  }).join('');
+
+  // pagination
+  const totalPages=Math.ceil(filtered.length/PER_PAGE);
+  const pgInfo=document.getElementById('pgInfo');
+  pgInfo.textContent='หน้า '+page+' จาก '+totalPages;
+  const pgBtns=document.getElementById('pgBtns');
+  let btns='';
+  if(page>1) btns+=`<button class="pg-btn" onclick="goPage(${page-1})"><i class="ti ti-chevron-left" style="font-size:12px"></i></button>`;
+  const start2=Math.max(1,page-2),end2=Math.min(totalPages,page+2);
+  for(let p=start2;p<=end2;p++) btns+=`<button class="pg-btn ${p===page?'on':''}" onclick="goPage(${p})">${p}</button>`;
+  if(page<totalPages) btns+=`<button class="pg-btn" onclick="goPage(${page+1})"><i class="ti ti-chevron-right" style="font-size:12px"></i></button>`;
+  pgBtns.innerHTML=btns;
+}
+
+function goPage(p){page=p;renderTable();}
+
+function _selectCoopImpl(id) {
+  selectedId = id;
+  const c = allCoops.find(x => x.id === id);
+  if(!c) return;
+  renderTable();
+
+  // ensure detail section visible
+  const secD = document.getElementById('secDetail');
+  if(secD) secD.style.display = '';
+
+  document.getElementById('detailEmpty').style.display = 'none';
+  document.getElementById('detailContent').style.display = 'block';
+  document.getElementById('detailName').textContent = c.name;
+  document.getElementById('detailSub').innerHTML = (TYPE_ICON_SVG[c.type]
+    ? `<span style='display:inline-flex;align-items:center;gap:5px;vertical-align:middle'>${TYPE_ICON_SVG[c.type]}</span> ` : '')
+    + c.type + ' · ' + c.area;
+
+  const ti = TYPES.indexOf(c.type);
+  const yr = document.getElementById('yearSel').value;
+  const yd = c.years[yr] || {};
+  document.getElementById('detailInfoGrid').innerHTML = [
+    {label:'เลขทะเบียน',     val: c.regNo || '—'},
+    {label:'ปีที่จดทะเบียน', val: 'พ.ศ. ' + (c.regYear || '—')},
+    {label:'สถานะ',          val: c.status==='active'?'ดำเนินการปกติ':c.status==='probation'?'อยู่ระหว่างแก้ไข':'ยุบเลิก'},
+    {label:'สมาชิก (คน)',    val: (yd.member  || 0).toLocaleString()},
+    {label:'สมาชิกสมทบ',     val: (yd.assoc   || 0).toLocaleString()},
+    {label:'ทุนดำเนินการ',   val: (yd.capital || 0).toLocaleString() + ' บาท'},
+    {label:'กำไรสุทธิ',      val: (yd.profit  || 0).toLocaleString() + ' บาท'},
+    {label:'โทรศัพท์',       val: c.phone || '—'},
+  ].map(i => `<div class="info-item"><div class="info-item-label">${i.label}</div><div class="info-item-val">${i.val}</div></div>`).join('');
+
+  // mini chart
+  if(miniChart){ miniChart.destroy(); miniChart = null; }
+  const mCtx = document.getElementById('miniChart').getContext('2d');
+  const yrs  = ['2568','2569'];
+  const mData = yrs.map(y => c.years[y]?.member || 0);
+  miniChart = new Chart(mCtx, {
+    type: 'bar',
+    data: { labels: yrs, datasets: [{
+      label: 'สมาชิก (คน)', data: mData,
+      backgroundColor: [COLS[ti]+'BB', COLS[ti]],
+      borderColor: COLS[ti], borderWidth: 1, borderRadius: 5, borderSkipped: false,
+    }]},
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { grid: { display: false }, ticks: { font: { size: 10 } } },
+        y: { grid: { color: 'rgba(0,0,0,.05)' }, ticks: { font: { size: 10 } } }
+      },
+      animation: { duration: 400 }
+    }
+  });
+
+  // history rows
+  document.getElementById('historyRows').innerHTML = yrs.map(y => {
+    const d = c.years[y] || {};
+    return `<div class="history-row">
+      <span class="history-year">ปี ${y}</span>
+      <span>สมาชิก: <b>${(d.member||0).toLocaleString()}</b> คน</span>
+      <span>ทุน: <b>${d.capital>=1000000?Math.round(d.capital/1000000).toLocaleString()+' ล้าน':(d.capital||0).toLocaleString()}</b></span>
+    </div>`;
+  }).join('');
+}
+
+function sw2(t,el){el.closest('.chart-tabs').querySelectorAll('.ctab').forEach(b=>b.classList.remove('on'));el.classList.add('on');chart2Type=t;renderCharts();}
+
+function exportCSV() {
+  const yr=document.getElementById('yearSel').value;
+  const rows=[['ชื่อสหกรณ์','ประเภท','เขต/อำเภอ','เลขทะเบียน','ปีจดทะเบียน','สมาชิก(คน)','ทุนดำเนินการ(บาท)','กำไรสุทธิ(บาท)','สถานะ','เทรนด์']];
+  filtered.forEach(c=>{
+    const d=c.years[yr]||{};
+    rows.push([c.name,c.type,c.area,c.regNo,c.regYear,d.member||0,d.capital||0,d.profit||0,c.status,c.trend]);
+  });
+  const csv=rows.map(r=>r.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(',')).join('\n');
+  const bom='\uFEFF';
+  const blob=new Blob([bom+csv],{type:'text/csv;charset=utf-8'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='สหกรณ์_'+currentOffice+'_'+yr+'.csv';a.click();
+}
+
+// CLOCK
+function tick(){
+  const n=new Date();
+  document.getElementById('clockTime').textContent=n.toLocaleTimeString('th-TH');
+  document.getElementById('clockDate').textContent=n.toLocaleDateString('th-TH',{weekday:'short',year:'numeric',month:'short',day:'numeric'});
+}
+setInterval(tick,1000);tick();
+setInterval(loadData,300000);
+
+// ADMIN
+function openLogin(){document.getElementById('loginOverlay').classList.add('show');document.getElementById('loginErr').style.display='none';document.getElementById('uname').value='';document.getElementById('upass').value='';}
+function closeLogin(){document.getElementById('loginOverlay').classList.remove('show');}
+function doLogin(){
+  const u=document.getElementById('uname').value;
+  const p=document.getElementById('upass').value;
+  if(u===ADMIN_USER&&p===ADMIN_PASS){
+    adminUser=u; adminPass=p;
+    closeLogin();document.getElementById('adminPanel').style.display='block';renderAdminTable();
+  } else {document.getElementById('loginErr').style.display='flex';}
+}
+function logout(){adminUser=null;adminPass=null;window._adminLoggedIn=false;document.getElementById('adminPanel').style.display='none';}
+function swAtab(n,el){el.closest('.admin-tabs').querySelectorAll('.atab').forEach(b=>b.classList.remove('on'));el.classList.add('on');['tabAdd','tabEdit','tabYear'].forEach(id=>document.getElementById(id).style.display='none');document.getElementById('tab'+n.charAt(0).toUpperCase()+n.slice(1)).style.display='block';if(n==='edit')renderAdminTable();}
+
+async function addCoop(){
+  const name=document.getElementById('aName').value.trim();
+  const type=document.getElementById('aType').value;
+  const area=document.getElementById('aArea').value.trim();
+  if(!name||!type||!area){alert('กรุณากรอกชื่อสหกรณ์ ประเภท และเขต/อำเภอ');return;}
+  const yr=document.getElementById('aYear').value;
+  const payload = {
+    name, type, area,
+    regNo:   document.getElementById('aRegNo').value || '',
+    regYear: parseInt(document.getElementById('aRegYear').value) || '',
+    status:  codeToTh(document.getElementById('aStatus').value),
+    addr:    document.getElementById('aAddr').value,
+    phone:   document.getElementById('aPhone').value,
+    year:    yr,
+    member:  parseInt(document.getElementById('aMember').value) || 0,
+    capital: parseInt(document.getElementById('aCapital').value) || 0,
+  };
+  try {
+    await postAPI('add', payload);
+    await loadData();
+    renderAdminTable();
+    document.getElementById('saveOk').style.display='flex';
+    setTimeout(()=>document.getElementById('saveOk').style.display='none',2500);
+  } catch(err) {
+    alert('เพิ่มสหกรณ์ไม่สำเร็จ: ' + err.message);
+  }
+}
+
+function renderAdminTable(){
+  document.getElementById('adminTbody').innerHTML=allCoops.slice(0,30).map((c,i)=>{
+    const yr='2569'; const d=c.years[yr]||{};
+    const ti=TYPES.indexOf(c.type);
+    return `<tr>
+      <td style="font-size:12px;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${c.name}">${c.name}</td>
+      <td><span class="type-pill ${PILL[ti]}">${c.type.replace('สหกรณ์','')}</span></td>
+      <td style="font-size:11px">${c.area}</td>
+      <td style="text-align:right;font-size:12px">${(d.member||0).toLocaleString()}</td>
+      <td style="font-size:11px">${c.status==='active'?'ปกติ':c.status==='probation'?'แก้ไข':'ยุบเลิก'}</td>
+      <td style="display:flex;gap:5px">
+        <button class="btn-sm btn-edit" onclick="openEdit('${c.id}')"><i class="ti ti-edit" style="font-size:11px"></i></button>
+        <button class="btn-sm btn-del" onclick="delCoop('${c.id}')"><i class="ti ti-trash" style="font-size:11px"></i></button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function openEdit(id){
+  const c=allCoops.find(x=>x.id===id); if(!c)return;
+  const yr='2569'; const d=c.years[yr]||{};
+  document.getElementById('editId').value=id;
+  document.getElementById('eOriginalName').value=c.name;
+  document.getElementById('eName').value=c.name;
+  document.getElementById('eType').value=c.type;
+  document.getElementById('eArea').value=c.area;
+  document.getElementById('eRegNo').value=c.regNo;
+  document.getElementById('eStatus').value=c.status;
+  document.getElementById('eMember').value=d.member||0;
+  document.getElementById('eCapital').value=d.capital||0;
+  document.getElementById('eAddr').value=c.addr||'';
+  document.getElementById('ePhone').value=c.phone||'';
+  document.getElementById('editOverlay').classList.add('show');
+}
+async function saveEdit(){
+  const id=document.getElementById('editId').value;
+  const originalName=document.getElementById('eOriginalName').value;
+  const idx=allCoops.findIndex(x=>x.id===id); if(idx<0)return;
+  const yr='2569';
+  const newName = document.getElementById('eName').value.trim();
+  const payload = {
+    originalName,
+    name:    newName,
+    type:    document.getElementById('eType').value,
+    area:    document.getElementById('eArea').value.trim(),
+    regNo:   document.getElementById('eRegNo').value,
+    status:  codeToTh(document.getElementById('eStatus').value),
+    addr:    document.getElementById('eAddr').value,
+    phone:   document.getElementById('ePhone').value,
+  };
+  try {
+    await postAPI('edit', payload);
+    const prevYr = allCoops[idx].years[yr] || {};
+    await postAPI('addYear', {
+      name:    newName,
+      year:    yr,
+      member:  parseInt(document.getElementById('eMember').value)||0,
+      assoc:   prevYr.assoc  || 0,
+      capital: parseInt(document.getElementById('eCapital').value)||0,
+      profit:  prevYr.profit || 0,
+    });
+    document.getElementById('editOverlay').classList.remove('show');
+    await loadData();
+    renderAdminTable();
+  } catch(err) {
+    alert('แก้ไขไม่สำเร็จ: ' + err.message);
+  }
+}
+async function delCoop(id){
+  const c=allCoops.find(x=>x.id===id); if(!c) return;
+  if(!confirm('ยืนยันการลบสหกรณ์นี้?')) return;
+  try {
+    await postAPI('delete', { name: c.name });
+    await loadData();
+    renderAdminTable();
+  } catch(err) {
+    alert('ลบไม่สำเร็จ: ' + err.message);
+  }
+}
+async function saveYearData(){
+  const id=document.getElementById('yCoop').value;
+  const yr=document.getElementById('yYear').value;
+  if(!id){alert('กรุณาเลือกสหกรณ์');return;}
+  const c=allCoops.find(x=>x.id===id); if(!c)return;
+  const payload = {
+    name: c.name, year: yr,
+    member:  parseInt(document.getElementById('yMember').value)||0,
+    assoc:   parseInt(document.getElementById('yAssoc').value)||0,
+    capital: parseInt(document.getElementById('yCapital').value)||0,
+    profit:  parseInt(document.getElementById('yProfit').value)||0,
+  };
+  try {
+    await postAPI('addYear', payload);
+    document.getElementById('saveYearOk').style.display='flex';
+    setTimeout(()=>document.getElementById('saveYearOk').style.display='none',2500);
+    await loadData();
+  } catch(err) {
+    alert('บันทึกข้อมูลรายปีไม่สำเร็จ: ' + err.message);
+  }
+}
+
+// INIT
+syncOfficeName();
+loadData();
+
+// ── MOBILE NAV ──────────────────────────────────────
+const SECTIONS = {
+  dashboard: ['secKpi','secCharts'],
+  list:      ['secFilters','secTable'],
+  detail:    ['secDetail'],
+  admin:     ['secAdmin'],
+};
+let activeNav = 'dashboard';
+
+function mnavGo(name) {
+  activeNav = name;
+  // show/hide sections
+  ['secKpi','secCharts','secFilters','secTable','secDetail','secAdmin'].forEach(id => {
+    const el = document.getElementById(id);
+    if(el) el.style.display = 'none';
+  });
+  (SECTIONS[name]||[]).forEach(id => {
+    const el = document.getElementById(id);
+    if(el) el.style.display = '';
+  });
+  // highlight nav
+  document.querySelectorAll('.mnav-btn').forEach(b => b.classList.remove('active'));
+  const btn = document.getElementById('mnav-'+name);
+  if(btn) btn.classList.add('active');
+  // open admin panel if needed
+  if(name==='admin') {
+    if(document.getElementById('adminPanel').style.display==='none' ||
+       document.getElementById('adminPanel').style.display==='') {
+      if(!window._adminLoggedIn) openLogin();
+    }
+  }
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+// on mobile, show only dashboard section by default
+function initMobile() {
+  if(window.innerWidth <= 640) {
+    mnavGo('dashboard');
+  } else {
+    // desktop: show all sections
+    ['secKpi','secCharts','secFilters','secTable','secDetail','secAdmin'].forEach(id => {
+      const el = document.getElementById(id);
+      if(el) el.style.display = '';
+    });
+    // on desktop, detail panel shows placeholder until user clicks
+    document.getElementById('detailEmpty').style.display = 'flex';
+    document.getElementById('detailContent').style.display = 'none';
+  }
+}
+window.addEventListener('resize', () => {
+  if(window.innerWidth > 640) {
+    ['secKpi','secCharts','secFilters','secTable','secDetail','secAdmin'].forEach(id => {
+      const el = document.getElementById(id);
+      if(el) el.style.display = '';
+    });
+  } else {
+    mnavGo(activeNav);
+  }
+});
+
+// patch doLogin to track login state and show admin section
+const _origDoLogin = doLogin;
+function doLogin() {
+  const u=document.getElementById('uname').value;
+  const p=document.getElementById('upass').value;
+  if(u===ADMIN_USER&&p===ADMIN_PASS) window._adminLoggedIn = true;
+  _origDoLogin();
+  if(window._adminLoggedIn && window.innerWidth<=640) {
+    document.getElementById('secAdmin').style.display='';
+    mnavGo('admin');
+  }
+}
+
+// selectCoop — single definition, handles both desktop and mobile
+function selectCoop(id) {
+  _selectCoopImpl(id);
+  if(window.innerWidth <= 640) mnavGo('detail');
+}
+
+initMobile();
+</script>
+
+<!-- MOBILE BOTTOM NAV -->
+<nav class="mobile-nav" role="navigation" aria-label="เมนูหลัก">
+  <div class="mobile-nav-inner">
+    <button class="mnav-btn active" id="mnav-dashboard" onclick="mnavGo('dashboard')">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" role="img" aria-label="ภาพรวม"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="4" rx="1"/><rect x="14" y="20" width="7" height="1" rx="0.5"/></svg>
+      <span>ภาพรวม</span>
+    </button>
+    <button class="mnav-btn" id="mnav-list" onclick="mnavGo('list')">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" role="img" aria-label="รายชื่อ"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><circle cx="4" cy="6" r="1.5" fill="currentColor" stroke="none"/><circle cx="4" cy="12" r="1.5" fill="currentColor" stroke="none"/><circle cx="4" cy="18" r="1.5" fill="currentColor" stroke="none"/></svg>
+      <span>รายชื่อ</span>
+    </button>
+    <button class="mnav-btn" id="mnav-detail" onclick="mnavGo('detail')">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" role="img" aria-label="รายละเอียด"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="13" y2="17"/></svg>
+      <span>รายละเอียด</span>
+    </button>
+    <button class="mnav-btn" id="mnav-admin" onclick="mnavGo('admin')">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" role="img" aria-label="Admin"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+      <span>Admin</span>
+    </button>
+  </div>
+</nav>
+
+</body>
+</html>
